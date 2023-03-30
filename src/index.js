@@ -4,7 +4,9 @@ import { connectToDatabase } from "./config/db.js";
 import { PORT } from "./config/env.js";
 import "./job/ScanReserves.js";
 import PairHourRecordService from "./service/PairHourRecordService.js";
+import cors from "cors";
 const app = Express();
+app.use(cors("*"));
 
 app.get("/api/v1/scan/:pair", async function (req, res) {
   try {
@@ -42,6 +44,7 @@ app.get("/api/v1/scan/:pair", async function (req, res) {
     });
   }
 });
+
 app.listen(PORT, async () => {
   connectToDatabase();
 });
