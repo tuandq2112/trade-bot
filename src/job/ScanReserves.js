@@ -36,15 +36,23 @@ const scanJob = scheduleJob("0 0 * * * *", async function () {
   const totalPair = await factory.allPairsLength();
   const totalPairAsNumber = Number(ethers.utils.formatUnits(totalPair, "wei"));
   let timestamp = +new Date();
+  let listReserves = [];
   for (let index = 0; index < totalPairAsNumber; index++) {
     try {
       const pairAddress = await factory.allPairs(index);
-      let data = await getCurrentPairData(pairAddress);
-      await PairHourRecordService.save({ ...data, timestamp });
+      let reserves = await getCurrentPairData(pairAddress);
+      listReserves.push(reserves);
     } catch (error) {
-      Logger.error("Fail to save", error);
+      Logger.error("Fetch data fail", error);
     }
   }
+  try {
+    let saveData = listReserves.map((item) => ({ ...item, timestamp }));
+    let result = await PairHourRecordService.save(saveData);
+  } catch (error) {
+    Logger.error("Save fail", error);
+  }
+
   Logger.debug("End sync", new Date());
 });
 
